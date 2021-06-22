@@ -9,7 +9,8 @@ ESP8266WebServer server(80);
 //WiFiServer server(80);
 const char* ssid = "RANSIKA";
 const char* password = "RWIFI1234";
-const char* xml ="<?xml version = \"1.0\" ?><inputs><LED>checked</LED><LED>on</LED><analog>5</analog></inputs>";
+String temperature="90";
+String xml ="<?xml version = \"1.0\" ?><inputs><LED>checked</LED><LED>on</LED><analog>"+temperature+"</analog></inputs>";
 //------------------------------------------
 void XML()
 {
