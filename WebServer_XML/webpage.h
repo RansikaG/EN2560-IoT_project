@@ -17,7 +17,7 @@ R"=====(
           font: 80px calibri;
           border-radius: 50%;
           box-shadow: 0px 0px 10px 15px #000000;
-          border: solid 10px rgba(255, 255, 0, 0.9);
+          border: solid 10px rgba(39, 194, 78, 0.9);
           cursor: pointer;
         }
         body {font-family: "Calibri"; background-color: grey}
@@ -25,7 +25,7 @@ R"=====(
     </style>
 </head>
 <!----------------------------H T M L--------------------------------->
-<body>
+<body onload="GetArduinoIO()">
     <h1>
         ESP8266 Webpage <br> (HTML + CSS + JavaScript) <br><br>
         <a href="#" id="btn" ONCLICK='JS1()'>JS1</a> <br><br>
@@ -41,6 +41,21 @@ R"=====(
       </form>
 <!---------------------------JavaScript------------------------------->
 <script>
+    document.addEventListener('DOMContentLoaded', ()=>{
+            //fetch the data as soon as the page has loaded
+            let url = "/xml";
+            fetch(url)
+            .then(response=>response.text())
+            .then(data=>{
+                console.log("trying to get xml");
+                //console.log(data);  //string
+                let parser = new DOMParser();
+                let xml = parser.parseFromString(data, "application/xml");
+                //document.getElementById('output').textContent = data;
+                console.log(xml);
+            });
+        })
+
     //function displays text message
     let m1 = 'JavaScript is an object-oriented language'
     let m2 = ' that creates interactive effects within web browsers.'
@@ -48,6 +63,7 @@ R"=====(
     function JS1()
     {
       alert(m1 + m2 + m3);
+      console.log("yesyasd");
     }
     //function prompts for name, then displays message
     function JS2()
@@ -66,7 +82,40 @@ R"=====(
         let n = prompt('FACTORIAL\nEnter positive integer number: ');
         for(let i=1; i<=n; i++) f = f * i;
         alert('Factorial = ' + f);
-    }   
+    } 
+    function GetArduinoIO()
+		{
+			//nocache = "&nocache=" + Math.random() * 1000000;
+			var request = new XMLHttpRequest();
+			request.onreadystatechange = function()
+			{
+				if (this.readyState == 4) {
+					if (this.status == 200) {
+						if (this.responseXML != null) {
+							//document.getElementById("input3").innerHTML =
+								//this.responseXML.getElementsByTagName('analog')[0].childNodes[0].nodeValue;
+								//data_val = this.responseXML.getElementsByTagName('analog')[0].childNodes[0].nodeValue;
+							// XML file received - contains analog values, switch values and LED states
+							var count;
+							// LED 2
+							if (this.responseXML.getElementsByTagName('LED')[1].childNodes[0].nodeValue === "on") {
+								document.getElementById("city").innerHTML = "ON";
+								document.getElementById("city").style.color = "green";
+								//LED2_state = 1;
+							}
+							else {
+								document.getElementById("country").innerHTML = "OFF";
+								document.getElementById("country").style.color = "red";
+								//LED2_state = 0;
+							}
+						}
+					}
+				}
+			}
+        }
+
+        
+    
 </script>
 </body>
 </html>
