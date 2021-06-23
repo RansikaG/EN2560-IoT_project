@@ -25,7 +25,7 @@ R"=====(
     </style>
 </head>
 <!----------------------------H T M L--------------------------------->
-<body onload="GetArduinoIO()">
+<body>
     <h1>
         ESP8266 Webpage <br> (HTML + CSS + JavaScript) <br><br>
         <a href="#" id="btn" ONCLICK='JS1()'>JS1</a> <br><br>
@@ -39,9 +39,13 @@ R"=====(
         <input type="text" id="country" name="city"><br><br>
         <input type="submit" value="Submit">
       </form>
+    <div>
+
+    </div>
+
 <!---------------------------JavaScript------------------------------->
 <script>
-    document.addEventListener('DOMContentLoaded', ()=>{
+         document.addEventListener('DOMContentLoaded', ()=>{
             //fetch the data as soon as the page has loaded
             let url = "/xml";
             fetch(url)
@@ -53,8 +57,13 @@ R"=====(
                 let xml = parser.parseFromString(data, "application/xml");
                 //document.getElementById('output').textContent = data;
                 console.log(xml);
+                country = xml.getElementsByTagName('loc')[0].childNodes[0]
+                console.log(country)
+                console.log(country.innerHTML)
             });
         })
+
+
 
     //function displays text message
     let m1 = 'JavaScript is an object-oriented language'
