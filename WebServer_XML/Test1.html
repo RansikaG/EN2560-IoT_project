@@ -9,35 +9,86 @@
           text-decoration: none;
           background: red;
           color:rgba(0, 0, 255, 0.7);
-          font: 80px calibri;
-          border-radius: 50%;
-          box-shadow: 0px 0px 10px 15px #000000;
-          border: solid 10px rgba(39, 194, 78, 0.9);
+          font: 30px calibri;
+          box-shadow: 0px 0px 3px 5px #000000;
+          border: solid 2px rgba(39, 194, 78, 0.9);
           cursor: pointer;
         }
         body {font-family: "Calibri"; background-color: grey}
-        h1   {color: whitesmoke; text-align:center; font-size: 50px;}
+        h1   {color: rgb(62, 161, 207); text-align:center; font-size: 50px;}
+        h2   {color: rgb(185, 97, 236); text-align:center; font-size: 30px;}
+        h3   {color: rgb(185, 97, 236); text-align:center; font-size: 30px;}
+        .container {
+        width: 50px;
+        clear: both;
+        margin: auto;
+        width: 25%;
+        border: 3px solid #73AD21;
+        padding: 10px;
+        background-color: rgb(55, 141, 170);
+                    }
+        .container input {
+        width: 100%;
+        margin: auto;
+        clear: both;
+        
+        }
+
+        .details {
+        width: 50px;
+        clear: both;
+        margin: auto;
+        width: 25%;
+        border: 3px solid #73AD21;
+        padding: 10px;
+        background-color: rgb(68, 175, 77);
+                    }
+           
+        body {
+        background-image: url('https://www.attractionsinsrilanka.com/wp-content/uploads/2020/02/Gampaha-Botanical-Garden-1.jpg');
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: cover;
+        }
+
+        .mode{
+        width: 50px;
+        clear: both;
+        margin: auto;
+        width: 25%;
+        padding: 10px;
+        }
+
     </style>
 </head>
 <!----------------------------H T M L--------------------------------->
 <body>
-    <h1>
-        ESP8266 Webpage <br> (HTML + CSS + JavaScript) <br><br>
-        <a href="#" id="btn" ONCLICK='JS1()'>JS1</a> <br><br>
-        <a href="#" id="btn" ONCLICK='JS2()'>JS2</a> <br><br>
-        <a href="#" id="btn" ONCLICK='JS3()'>JS3</a>
-    </h1>
-    <form action="/" method="GET">
-        <label for="city">City:</label><br>
-        <input type="text" id="city" name="city"><br>
-        <label for="country">Country:</label><br>
-        <input type="text" id="country" name="country"><br><br>
+    <h1 id="title">Garden Watering System</h1>
+    
+    <h2>
+    Setup the location below
+    </h2>
+    <div class="container">
+    <form action="/location" method="GET">
+        <label for="city">City:</label><label id="city_name">None</label><br>
+        <input type="text" id="city" name="City"><br>
+        <label for="country">Country:</label><label id="country_name">None</label><br>
+        <input type="text" id="country" name="Country"><br><br>
         <input type="submit" value="Submit">
       </form>
-    <div>
-
+    </div><br>
+    <div class="details">
+        <label>Temperature:</label><label id="temp">None</label><br>
+        <label>Humidity:</label><label id="temp">None</label><br>
+        <label>Weather:</label><label id="temp">None</label><br> 
     </div>
 
+    <h3>Operating Mode</h3><br>
+
+    <div class="mode">
+        <button method="post"id="btn" name="Auto" ONCLICK='JS1()'>AUTO</button>
+        <button method="post"id="btn" ONCLICK='JS1()'>MANUAL</button>
+    </div>
 <!---------------------------JavaScript------------------------------->
 <script>
     document.addEventListener('DOMContentLoaded', ()=>{
@@ -53,6 +104,9 @@
                 //document.getElementById('output').textContent = data;
                 console.log(xml);
                 country = xml.getElementsByTagName('loc')[0].childNodes[0].innerHTML
+                city=xml.getElementsByTagName('loc')[0].childNodes[1].innerHTML
+                document.getElementById("country_name").innerHTML = country;
+                document.getElementById("city_name").innerHTML = city;
                 console.log(country)
             });
         })
@@ -67,6 +121,10 @@
     {
       alert(m1 + m2 + m3);
       console.log("yesyasd");
+      const xhttp = new XMLHttpRequest();
+      xhttp.open("POST", "/method", true);
+    xhttp.send("Auto");
+    console.log(xhttp);
     }
     //function prompts for name, then displays message
     function JS2()

@@ -27,9 +27,23 @@ void XML()
 void webpage()
 {
   server.send(200,"text/html", webpageCode);
-  location();
   //XML_response();
 
+}
+void method(){
+  if (server.hasArg("Auto")==true){ //Check if body received
+            //server.send(200, "text/plain", "Body not received");
+            Auto();
+      }
+  return;
+}
+
+void Auto(){
+Serial.println("Auto");
+}
+
+void Manual(){
+Serial.println("Manual");
 }
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 void location() { //Handler for the body path
@@ -56,7 +70,9 @@ void setup()
   Serial.println();
   Serial.print("IP Address: "); Serial.println(WiFi.localIP());
   server.on("/", webpage);
+  server.on("/method", method);
   server.on("/xml",XML);
+  server.on("/location", Auto);
   server.begin();
 }
 //=================================================================
