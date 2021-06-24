@@ -27,23 +27,26 @@ void XML()
 void webpage()
 {
   server.send(200,"text/html", webpageCode);
-  //XML_response();
 
 }
 void method(){
-  if (server.hasArg("Auto")==true){ //Check if body received
-            //server.send(200, "text/plain", "Body not received");
+    Serial.println("method invoked");
+    if (server.arg("Auto")=="true"){ //Check if body received
+            //server.send(200, "text/plain", "Body not received")
             Auto();
+            return;
       }
-  return;
-}
 
+}
 void Auto(){
 Serial.println("Auto");
+server.send(200,"text/plain","Set to Auto");
+String mode="AUTO";
 }
 
 void Manual(){
 Serial.println("Manual");
+String mode="MANUAL";
 }
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 void location() { //Handler for the body path
@@ -72,7 +75,7 @@ void setup()
   server.on("/", webpage);
   server.on("/method", method);
   server.on("/xml",XML);
-  server.on("/location", Auto);
+  server.on("/location", location);
   server.begin();
 }
 //=================================================================

@@ -91,8 +91,8 @@ R"=====(
     <h3>Operating Mode</h3><br>
 
     <div class="mode">
-        <button method="post"id="btn" name="Auto" ONCLICK='JS1()'>AUTO</button>
-        <button method="post"id="btn" ONCLICK='JS1()'>MANUAL</button>
+        <button id="btn" name="Auto" ONCLICK=' auto()'>AUTO</button>
+        <button id="btn" ONCLICK='JS1()'>MANUAL</button>
     </div>
 <!---------------------------JavaScript------------------------------->
 <script>
@@ -125,11 +125,16 @@ R"=====(
     function JS1()
     {
       alert(m1 + m2 + m3);
-      console.log("yesyasd");
-      const xhttp = new XMLHttpRequest();
-      xhttp.open("POST", "/method", true);
-    xhttp.send("Auto");
-    console.log(xhttp);
+      console.log("recieved");
+    }
+
+    function auto() {
+    const xhttp = new XMLHttpRequest();
+    xhttp.onload = function(){
+        console.log(this.responseText);
+    };
+    xhttp.open("GET", "/method?Auto=true&Manual=false");
+    xhttp.send();
     }
     //function prompts for name, then displays message
     function JS2()
