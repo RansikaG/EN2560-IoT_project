@@ -74,12 +74,12 @@ R"=====(
     Setup the location below
     </h2>
     <div class="container">
-    <form action="/location" method="GET">
+    <form id="myform">
         <label for="city">City:</label><label id="city_name">None</label><br>
-        <input type="text" id="city" name="City"><br>
+        <input type="text" id="city" ><br>
         <label for="country">Country:</label><label id="country_name">None</label><br>
-        <input type="text" id="country" name="Country"><br><br>
-        <input type="submit" value="Submit">
+        <input type="text" id="country"><br><br>
+        <button type="button" name="Submit" onclick="send_form_data()">SET</button>
       </form>
     </div><br>
     <div class="details">
@@ -96,35 +96,49 @@ R"=====(
     </div>
 <!---------------------------JavaScript------------------------------->
 <script>
-    document.addEventListener('DOMContentLoaded', ()=>{
+    window.setInterval(refresh,30000)
+    document.addEventListener('DOMContentLoaded',refresh);
             //fetch the data as soon as the page has loaded
-            let url = "/xml";
-            fetch(url)
-            .then(response=>response.text())
-            .then(data=>{
-                console.log("trying to get xml");
-                //console.log(data);  //string
-                let parser = new DOMParser();
-                let xml = parser.parseFromString(data, "application/xml");
-                //document.getElementById('output').textContent = data;
-                console.log(xml);
-                country = xml.getElementsByTagName('loc')[0].childNodes[0].innerHTML
-                city=xml.getElementsByTagName('loc')[0].childNodes[1].innerHTML
-                document.getElementById("country_name").innerHTML = country;
-                document.getElementById("city_name").innerHTML = city;
-                console.log(country)
-            });
-        })
+            //setInterval(refresh,2000)
+    function send_form_data(){
+        console.log("form data bn");
+        let city=document.getElementById("city").value;
+        let country=document.getElementById("country").value;
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function(){
+        response=this.responseText;
+        console.log(response);
+        };
+        xhttp.open("GET","/location?city="+city+"&country="+country);
+        xhttp.send();
+        console.log("location data sent");
+    }
 
-
+    
+    function refresh(){
+        const xhttp = new XMLHttpRequest();
+        let xml; 
+        xhttp.onload = function(){
+        xml=this.responseXML;
+        console.log(this.responseXML);
+        country = xml.getElementsByTagName('loc')[0].childNodes[0].innerHTML;
+        city=xml.getElementsByTagName('loc')[0].childNodes[1].innerHTML;
+        document.getElementById("country_name").innerHTML = country;
+        document.getElementById("city_name").innerHTML = city;
+        console.log(country);
+        };
+        xhttp.open("GET", "/xml");
+        xhttp.send();
+        console.log("trying to get xml");
+    }
+   
 
     //function displays text message
-    let m1 = 'JavaScript is an object-oriented language'
-    let m2 = ' that creates interactive effects within web browsers.'
-    let m3 = ' The code syntax of JavaScript is similar to C++.'
+    let m1 = 'JavaScript is an object-oriented language';
+
     function JS1()
     {
-      alert(m1 + m2 + m3);
+      alert(m1);
       console.log("recieved");
     }
 
@@ -163,11 +177,7 @@ R"=====(
 				if (this.readyState == 4) {
 					if (this.status == 200) {
 						if (this.responseXML != null) {
-							//document.getElementById("input3").innerHTML =
-								//this.responseXML.getElementsByTagName('analog')[0].childNodes[0].nodeValue;
-								//data_val = this.responseXML.getElementsByTagName('analog')[0].childNodes[0].nodeValue;
-							// XML file received - contains analog values, switch values and LED states
-							var count;
+
 							// LED 2
 							if (this.responseXML.getElementsByTagName('LED')[1].childNodes[0].nodeValue === "on") {
 								document.getElementById("city").innerHTML = "ON";

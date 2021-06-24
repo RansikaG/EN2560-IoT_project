@@ -9,8 +9,8 @@ ESP8266WebServer server(80);
 
 const char* ssid = "RANSIKA";
 const char* password = "RWIFI1234";
+int n=0;
 String temperature="90";
-//String xml ="<?xml version = \"1.0\" ?><inputs><LED>checked</LED><LED>on</LED><analog>"+temperature+"</analog></inputs>";
 String locset="True";
 String country="Sri Lanka";
 String city="Colombo";
@@ -21,8 +21,12 @@ String mode="AUTO";
 //------------------------------------------
 void XML()
 {
+  
+  city="Colombo"+String(n);
   String xml="<?xml version = \"1.0\" ?><inputs><locset>"+locset+"</locset><loc><country>"+country+"</country><city>"+city+"</city></loc><sys><temp>"+temp+"</temp><humidity>"+humidity+"</humidity><status>"+status+"</status></sys><mode>"+mode+"</mode></inputs>";
   server.send(200,"text/XML",xml);
+  Serial.println("xml sent");
+  n=n+1;
 }
 void webpage()
 {
@@ -31,13 +35,20 @@ void webpage()
 }
 void method(){
     Serial.println("method invoked");
-    if (server.arg("Auto")=="true"){ //Check if body received
-            //server.send(200, "text/plain", "Body not received")
+    if (server.arg("Auto")=="true"){
             Auto();
             return;
       }
+    else if (server.arg("Auto")=="true"){ 
+            Manual();
+            return;
+      }
+    else{
+      return;
+    }
 
 }
+
 void Auto(){
 Serial.println("Auto");
 server.send(200,"text/plain","Set to Auto");
@@ -46,22 +57,19 @@ String mode="AUTO";
 
 void Manual(){
 Serial.println("Manual");
+server.send(200,"text/plain","Set to Manual");
 String mode="MANUAL";
 }
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 void location() { //Handler for the body path
       if (server.hasArg("country")== false){ //Check if body received
-            //server.send(200, "text/plain", "Body not received");
             return;
       }
- 
-      String message = "Body received:\n";
-             message += server.arg("country");
-             message += "\n";
- 
-      //server.send(200, "text/plain", message);
-      Serial.println("Country"+message);
-      return;
+    city=server.arg("city");
+    country=server.arg("country");
+    Serial.println("Location set to"+country+" "+city);
+    server.send(200,"text/plain","Location set to"+country+" "+city);
+    return;
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=++++++
 //=================================================================
@@ -82,5 +90,4 @@ void setup()
 void loop()
 {
   server.handleClient();
-  //location();
 }
