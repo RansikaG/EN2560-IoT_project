@@ -8,15 +8,15 @@ R"=====(
 <!------------------------------C S S--------------------------------->
 <head>
     <style>
-        #btn
+        .btn
         {
           display: inline;
           text-decoration: none;
-          background: red;
+          background: rgb(0, 255, 13);
           color:rgba(0, 0, 255, 0.7);
           font: 30px calibri;
           box-shadow: 0px 0px 3px 5px #000000;
-          border: solid 2px rgba(39, 194, 78, 0.9);
+          border: solid 2px rgba(21, 92, 134, 0.9);
           cursor: pointer;
         }
         body {font-family: "Calibri"; background-color: grey}
@@ -84,15 +84,15 @@ R"=====(
     </div><br>
     <div class="details">
         <label>Temperature:</label><label id="temp">None</label><br>
-        <label>Humidity:</label><label id="temp">None</label><br>
-        <label>Weather:</label><label id="temp">None</label><br> 
+        <label>Humidity:</label><label id="humidity">None</label><br>
+        <label>Weather:</label><label id="weather">None</label><br> 
     </div>
 
     <h3>Operating Mode</h3><br>
 
     <div class="mode">
-        <button id="btn" name="Auto" ONCLICK=' auto()'>AUTO</button>
-        <button id="btn" ONCLICK='JS1()'>MANUAL</button>
+        <button class=btn id="btn_A" name="Auto" ONCLICK=' auto()'>AUTO</button>
+        <button class=btn id="btn_M" name="Manual" ONCLICK=' manual()'>MANUAL</button>
     </div>
 <!---------------------------JavaScript------------------------------->
 <script>
@@ -120,16 +120,23 @@ R"=====(
         let xml; 
         xhttp.onload = function(){
         xml=this.responseXML;
-        console.log(this.responseXML);
+        //console.log(this.responseXML);
         country = xml.getElementsByTagName('loc')[0].childNodes[0].innerHTML;
         city=xml.getElementsByTagName('loc')[0].childNodes[1].innerHTML;
+        temp = xml.getElementsByTagName('sys')[0].childNodes[0].innerHTML;
+        humidity = xml.getElementsByTagName('sys')[0].childNodes[1].innerHTML;
+        weather = xml.getElementsByTagName('sys')[0].childNodes[2].innerHTML;
+
         document.getElementById("country_name").innerHTML = country;
         document.getElementById("city_name").innerHTML = city;
-        console.log(country);
+        document.getElementById("temp").innerHTML = temp;
+        document.getElementById("humidity").innerHTML = humidity;
+        document.getElementById("weather").innerHTML = weather;
+
         };
         xhttp.open("GET", "/xml");
         xhttp.send();
-        console.log("trying to get xml");
+        //console.log("trying to get xml");
     }
    
 
@@ -143,12 +150,28 @@ R"=====(
     }
 
     function auto() {
-    const xhttp = new XMLHttpRequest();
-    xhttp.onload = function(){
-        console.log(this.responseText);
-    };
-    xhttp.open("GET", "/method?Auto=true&Manual=false");
-    xhttp.send();
+        document.getElementById("btn_A").style.borderColor = "red";
+        document.getElementById("btn_M").style.borderColor = "white";
+        document.getElementById("btn_A").disabled = true;
+        document.getElementById("btn_M").disabled = false;
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function(){
+            console.log(this.responseText);
+        };
+        xhttp.open("GET", "/method?Auto=true&Manual=false");
+        xhttp.send();
+    }
+    function manual() {
+        document.getElementById("btn_A").style.borderColor = "white";
+        document.getElementById("btn_M").style.borderColor = "red";
+        document.getElementById("btn_A").disabled = false;
+        document.getElementById("btn_M").disabled = true;
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function(){
+            console.log(this.responseText);
+        };
+        xhttp.open("GET", "/method?Auto=false&Manual=true");
+        xhttp.send();
     }
     //function prompts for name, then displays message
     function JS2()

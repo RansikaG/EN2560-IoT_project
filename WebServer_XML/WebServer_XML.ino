@@ -16,14 +16,14 @@ String country="Sri Lanka";
 String city="Colombo";
 String temp="30";
 String humidity="150";
-String status="ON";
+String weather="Sunny";
 String mode="AUTO";
 //------------------------------------------
 void XML()
 {
   
   city="Colombo"+String(n);
-  String xml="<?xml version = \"1.0\" ?><inputs><locset>"+locset+"</locset><loc><country>"+country+"</country><city>"+city+"</city></loc><sys><temp>"+temp+"</temp><humidity>"+humidity+"</humidity><status>"+status+"</status></sys><mode>"+mode+"</mode></inputs>";
+  String xml="<?xml version = \"1.0\" ?><inputs><locset>"+locset+"</locset><loc><country>"+country+"</country><city>"+city+"</city></loc><sys><temp>"+temp+"</temp><humidity>"+humidity+"</humidity><weather>"+weather+"</weather></sys><mode>"+mode+"</mode></inputs>";
   server.send(200,"text/XML",xml);
   Serial.println("xml sent");
   n=n+1;
@@ -35,11 +35,11 @@ void webpage()
 }
 void method(){
     Serial.println("method invoked");
-    if (server.arg("Auto")=="true"){
+    if (server.arg("Auto")=="true"&&server.arg("Manual")=="false"){
             Auto();
             return;
       }
-    else if (server.arg("Auto")=="true"){ 
+    else if (server.arg("Auto")=="false"&&server.arg("Manual")=="true"){ 
             Manual();
             return;
       }
