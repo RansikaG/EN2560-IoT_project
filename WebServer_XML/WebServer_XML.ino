@@ -31,7 +31,7 @@ String city_nodered="SSDDDd";
 String temp="30";
 String humidity="150";
 String weather="Sunny";
-String detail="";
+
 String mode="AUTO";
 //-----------MQTT functions---------------------------
 
@@ -58,15 +58,15 @@ void callback(char* topic, byte* payload, unsigned int length) {
     temp = getValue(weatherDetails, ',', 0);
     humidity = getValue(weatherDetails, ',', 1);
     weather = getValue(weatherDetails, ',', 2);
-    detail = getValue(weatherDetails, ',', 3);
-    city_nodered = getValue(weatherDetails, ',', 4);
-    country_nodered=getValue(weatherDetails, ',', 5);
+    city_nodered = getValue(weatherDetails, ',', 3);
+    country_nodered=getValue(weatherDetails, ',', 4);
     Serial.println("temp"+temp);
     //Serial.println("location"+location);
     char msgr[30]="got it";
-    Serial.print("Publish message: ");
     Serial.println(msgr);
+    XML();
 }
+
 
 void reconnect() {
   // Loop until we're reconnected
@@ -97,7 +97,7 @@ void XML()
 {
   
   city="Colombo"+String(n);
-  String xml="<?xml version = \"1.0\" ?><inputs><locset>"+locset+"</locset><loc><country>"+country+"</country><city>"+city+"</city></loc><sys><temp>"+temp+"</temp><humidity>"+humidity+"</humidity><weather>"+weather+"</weather></sys><mode>"+mode+"</mode></inputs>";
+  String xml="<?xml version = \"1.0\" ?><inputs><locset>"+locset+"</locset><loc><country>"+country_nodered+"</country><city>"+city_nodered+"</city></loc><sys><temp>"+temp+"</temp><humidity>"+humidity+"</humidity><weather>"+weather+"</weather></sys><mode>"+mode+"</mode></inputs>";
   server.send(200,"text/XML",xml);
   Serial.println("xml sent");
   n=n+1;

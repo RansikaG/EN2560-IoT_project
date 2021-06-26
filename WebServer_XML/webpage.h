@@ -10,6 +10,7 @@ R"=====(
     <style>
         .btn
         {
+          position: relative;
           display: inline;
           text-decoration: none;
           background: rgb(0, 255, 13);
@@ -17,8 +18,22 @@ R"=====(
           font: 30px calibri;
           box-shadow: 0px 0px 3px 5px #000000;
           border: solid 2px rgba(21, 92, 134, 0.9);
-          cursor: pointer;
+          cursor: pointer;}
+        
+        #btn_M{
+            background: rgb(0, 255, 13);
+            position:relative;
+            left: 18%;
+            top:-20%
         }
+
+        #location_btn{
+            background: rgb(144, 150, 155);
+            position:relative;
+            left: 40%;
+            top:-20%;
+        }
+        
         body {font-family: "Calibri"; background-color: grey}
         h1   {color: rgb(62, 161, 207); text-align:center; font-size: 50px;}
         h2   {color: rgb(185, 97, 236); text-align:center; font-size: 30px;}
@@ -27,8 +42,9 @@ R"=====(
         width: 50px;
         clear: both;
         margin: auto;
+        position: relative;
         width: 25%;
-        border: 3px solid #73AD21;
+        border: 3px solid #090a07;
         padding: 10px;
         background-color: rgb(55, 141, 170);
                     }
@@ -57,12 +73,82 @@ R"=====(
         }
 
         .mode{
-        width: 50px;
+        border: solid 2px rgba(18, 28, 34, 0.9);
+        width: 200px;
         clear: both;
         margin: auto;
-        width: 25%;
+        height: 100px;
         padding: 10px;
         }
+
+        #autolabel{
+            font-family: "Lucida Console", monospace;
+            font-size: 45px;
+        }
+
+        .switch {
+        position:relative;
+        left:70%;
+        top: -40%;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+        }
+
+        .switch input { 
+        opacity: 0;
+        width: 0;
+        height: 0;
+        }
+
+        .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+        }
+
+        .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+        }
+
+        input:checked + .slider {
+        background-color: #2196F3;
+        }
+
+        input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+        }
+
+        /* Rounded sliders */
+        .slider.round {
+        border-radius: 34px;
+        }
+
+        .slider.round:before {
+        border-radius: 50%;
+        }
+
+
 
     </style>
 </head>
@@ -79,7 +165,7 @@ R"=====(
         <input type="text" id="city" ><br>
         <label for="country">Country:</label><label id="country_name">None</label><br>
         <input type="text" id="country"><br><br>
-        <button type="button" name="Submit" onclick="send_form_data()">SET</button>
+        <button type="button" id="location_btn" name="Submit" onclick="send_form_data()">SET</button>
       </form>
     </div><br>
     <div class="details">
@@ -91,13 +177,19 @@ R"=====(
     <h3>Operating Mode</h3><br>
 
     <div class="mode">
-        <button class=btn id="btn_A" name="Auto" ONCLICK=' auto()'>AUTO</button>
-        <button class=btn id="btn_M" name="Manual" ONCLICK=' manual()'>MANUAL</button>
+    <div id="autolabel">Auto </div>
+        <label class="switch">
+            <input type="checkbox" id="toggle" aria-checked="false" onclick="JS2();">
+            <span class="slider round"></span>
+          </label><br>
+        <button class=btn id="btn_M"  name="Manual" ONCLICK=' manual()' >MANUAL</button>
     </div>
 <!---------------------------JavaScript------------------------------->
 <script>
     window.setInterval(refresh,30000)
     document.addEventListener('DOMContentLoaded',refresh);
+    //document.addEventListener('DOMContentLoaded',auto);
+    document.addEventListener('DOMContentLoaded',JS2);//set to auto
             //fetch the data as soon as the page has loaded
             //setInterval(refresh,2000)
     function send_form_data(){
@@ -150,10 +242,7 @@ R"=====(
     }
 
     function auto() {
-        document.getElementById("btn_A").style.borderColor = "red";
         document.getElementById("btn_M").style.borderColor = "white";
-        document.getElementById("btn_A").disabled = true;
-        document.getElementById("btn_M").disabled = false;
         const xhttp = new XMLHttpRequest();
         xhttp.onload = function(){
             console.log(this.responseText);
@@ -162,10 +251,7 @@ R"=====(
         xhttp.send();
     }
     function manual() {
-        document.getElementById("btn_A").style.borderColor = "white";
-        document.getElementById("btn_M").style.borderColor = "red";
-        document.getElementById("btn_A").disabled = false;
-        document.getElementById("btn_M").disabled = true;
+        console.log("manual watering");
         const xhttp = new XMLHttpRequest();
         xhttp.onload = function(){
             console.log(this.responseText);
@@ -174,14 +260,18 @@ R"=====(
         xhttp.send();
     }
     //function prompts for name, then displays message
-    function JS2()
+    function JS2(checkbox)
     {
-        let yourName;
-        do
-        {
-            yourName = prompt("Who are you?");
-        } while (!yourName);
-        alert('Hello ' + yourName);
+        if(document.getElementById("toggle").checked){
+            document.getElementById("btn_M").disabled = true;//In auto
+            auto();
+            console.log("Auto enabled");
+        }
+        else{
+            document.getElementById("btn_M").disabled = false;
+            document.getElementById("btn_M").style.borderColor = "red";
+            console.log("Manual enabled");
+        }
     }
     //function computes factorial of integer number
     function JS3()
@@ -191,32 +281,8 @@ R"=====(
         for(let i=1; i<=n; i++) f = f * i;
         alert('Factorial = ' + f);
     } 
-    function GetArduinoIO()
-		{
-			//nocache = "&nocache=" + Math.random() * 1000000;
-			var request = new XMLHttpRequest();
-			request.onreadystatechange = function()
-			{
-				if (this.readyState == 4) {
-					if (this.status == 200) {
-						if (this.responseXML != null) {
 
-							// LED 2
-							if (this.responseXML.getElementsByTagName('LED')[1].childNodes[0].nodeValue === "on") {
-								document.getElementById("city").innerHTML = "ON";
-								document.getElementById("city").style.color = "green";
-								//LED2_state = 1;
-							}
-							else {
-								document.getElementById("country").innerHTML = "OFF";
-								document.getElementById("country").style.color = "red";
-								//LED2_state = 0;
-							}
-						}
-					}
-				}
-			}
-        }
+
 
         
     
