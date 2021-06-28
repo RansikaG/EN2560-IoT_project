@@ -4,7 +4,17 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <PubSubClient.h>
+#include <NTPClient.h>
+#include <WiFiUdp.h>
 #include "webpage.h";
+
+
+#define Valve D4
+
+const long utcOffsetInSeconds = 19800;
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
+
 //------------------------------------------
 ESP8266WebServer server(80);
 WiFiClient espClient;
@@ -26,8 +36,8 @@ String temperature="90";
 String locset="True";
 String country="Sri Lanka";
 String city="Colombo";
-String country_nodered="SSSS";
-String city_nodered="SSDDDd";
+String country_nodered="None";
+String city_nodered="None";
 String temp="30";
 String humidity="150";
 String weather="Sunny";
@@ -125,14 +135,39 @@ void method(){
 
 void Auto(){
 Serial.println("Auto");
-server.send(200,"text/plain","Set to Auto");
 String mode="AUTO";
+if (weather=="rain" ||weather=="shower rain"|| weather=="thunderstorm"){
+    //we don't have to water
+    delay(100);
+  }
+
+  else{
+    unsigned long On_time=temp/10*6e4 + (100-hum)/10*6e4;
+    //int h=H.toInt();
+    if (9<H<10 || 16<H<17){
+      unsigned long C_time = millis();
+      unsigned long N_time = C_time;
+      while (N_time>C_time+On_time){
+        digitalWrite(Valve,HIGH);
+        N_time = millis();
+      }
+      digitalWrite(Valve,LOW);
+      delay(1000);
+      ESP.deepSleep(3600e6);
+    }
+  }
+server.send(200,"text/plain","Set to Auto");
+
 }
 
 void Manual(){
 Serial.println("Manual");
+digitalWrite(Valve,HIGH);
+delay(300e3);
+digitalWrite(Valve,LOW);
 server.send(200,"text/plain","Set to Manual");
 String mode="MANUAL";
+ESP.deepSleep(3600e6);
 }
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 void location() { //Handler for the body path
@@ -149,6 +184,19 @@ void location() { //Handler for the body path
     Serial.println("Location set to"+country+" "+city);
     server.send(200,"text/plain","Location set to"+country+" "+city);
     return;
+}
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+void Reg_sleep(int H,int M){             // This function check the local time if it is not close to the watering time, ESP will goto a 5 Mins deep sleep.
+  
+  //int h=H.toInt();
+  //int m=M.toInt();
+
+  if (not(9<H<10 || 16<H<17)){
+    ESP.deepSleep(300e6);
+  }
+  else if (not(50<M<60)){
+    ESP.deepSleep(300e6);
+  }
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=++++++
 //=================================================================
@@ -178,4 +226,9 @@ void loop()
     reconnect();
   }
   client.loop();
+
+  timeClient.update();                            // This function gets the local time of the NodeMCU. This should run frequently
+    int H=timeClient.getHours();
+    int M=timeClient.getMinutes();
+    int S=timeClient.getSeconds();
 }
