@@ -124,7 +124,11 @@ void method(){
       }
     else if (server.arg("Auto")=="false"&&server.arg("Manual")=="true"){ 
             mode="MANUAL";
+            Serial.println("Manual enabled");
+            erver.send(200,"text/plain","Manual watering enabled");
+            if(server.arg("mwatering")=="true"){
             Manual();
+            }
             return;
       }
     else{
@@ -167,13 +171,12 @@ if (weather=="rain" ||weather=="shower rain"|| weather=="thunderstorm"){
 }
 
 void Manual(){
-Serial.println("Manual");
 digitalWrite(Valve,HIGH);
 Serial.println("Manual Watering Happening");
 delay(30e3);
 Serial.println("Manual Watering stopped****************************************");
 digitalWrite(Valve,LOW);
-server.send(200,"text/plain","Set to Manual");
+server.send(200,"text/plain","Manual watering happened");
 //ESP.deepSleep(3600e6);
 }
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
