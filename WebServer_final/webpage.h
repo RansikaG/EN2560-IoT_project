@@ -182,7 +182,7 @@ R"=====(
             <input type="checkbox" id="toggle" checked="true" onclick="JS2();">
             <span class="slider round"></span>
           </label><br>
-        <button class=btn id="btn_M"  name="Manual" ONCLICK=' manual()' >MANUAL</button>
+        <button class=btn id="btn_M"  name="Manual" ONCLICK=' manual(water=true)' >MANUAL</button>
     </div>
 <!---------------------------JavaScript------------------------------->
 <script>
@@ -276,6 +276,7 @@ R"=====(
             document.getElementById("btn_M").disabled = false;
             document.getElementById("btn_M").style.borderColor = "red";
             console.log("Manual enabled");
+            manual(water=false);
         }
     }
     //function computes factorial of integer number

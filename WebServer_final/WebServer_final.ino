@@ -19,8 +19,8 @@ NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
 ESP8266WebServer server(80);
 WiFiClient espClient;
 PubSubClient client(espClient);
-const char* ssid = "SLT-4G-3F4C";
-const char* password = "5HJ39M13JDM";
+const char* ssid = "RANSIKA";
+const char* password = "RWIFI1234";
 
 const char* mqtt_server = "test.mosquitto.org";
 const char* outTopic = "ENTC/EN2560/out/180241M";
@@ -124,11 +124,15 @@ void method(){
       }
     else if (server.arg("Auto")=="false"&&server.arg("Manual")=="true"){ 
             mode="MANUAL";
-            Serial.println("Manual enabled");
-            erver.send(200,"text/plain","Manual watering enabled");
             if(server.arg("mwatering")=="true"){
             Manual();
             }
+            else if (server.arg("mwatering")=="false")
+            {
+            Serial.println("Manual enabled");
+            server.send(200,"text/plain","Manual watering enabled");
+            }
+            
             return;
       }
     else{
