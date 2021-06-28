@@ -250,13 +250,18 @@ R"=====(
         xhttp.open("GET", "/method?Auto=true&Manual=false");
         xhttp.send();
     }
-    function manual() {
-        console.log("manual watering");
+    function manual(water) {
+        console.log("manual sent");
         const xhttp = new XMLHttpRequest();
         xhttp.onload = function(){
             console.log(this.responseText);
         };
-        xhttp.open("GET", "/method?Auto=false&Manual=true");
+        if(water){
+            xhttp.open("GET", "/method?Auto=false&Manual=true&mwatering=true");
+        }
+        else{
+            xhttp.open("GET", "/method?Auto=false&Manual=true&mwatering=false");
+        }
         xhttp.send();
     }
     //function prompts for name, then displays message
