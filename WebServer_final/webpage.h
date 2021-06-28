@@ -270,7 +270,6 @@ R"=====(
         else{
             document.getElementById("btn_M").disabled = false;
             document.getElementById("btn_M").style.borderColor = "red";
-            manual();
             console.log("Manual enabled");
         }
     }

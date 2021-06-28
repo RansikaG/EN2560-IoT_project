@@ -19,12 +19,13 @@ NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
 ESP8266WebServer server(80);
 WiFiClient espClient;
 PubSubClient client(espClient);
-const char* ssid = "RANSIKA";
-const char* password = "RWIFI1234";
+const char* ssid = "SLT-4G-3F4C";
+const char* password = "5HJ39M13JDM";
 
 const char* mqtt_server = "test.mosquitto.org";
 const char* outTopic = "ENTC/EN2560/out/180241M";
 const char* inTopic = "ENTC/EN2560/in/180241M";
+
 
 unsigned long lastMsg = 0;
 #define MSG_BUFFER_SIZE  (50)
@@ -40,6 +41,7 @@ String city_nodered="None";
 String temp="0";
 String humidity="0";
 String weather="None";
+bool flag=true;
 
 String mode="AUTO";
 //-----------MQTT functions---------------------------
@@ -139,26 +141,37 @@ if (weather=="rain" ||weather=="shower rain"|| weather=="thunderstorm"){
     delay(100);
   }
   else{
+    
     unsigned long On_time=temp.toFloat()/10*6e4 + (100-humidity.toFloat())/10*6e4;
     //int h=H.toInt();
-    if (9<H<10 || 16<H<17){
-      unsigned long C_time = millis();
-      unsigned long N_time = C_time;
-      while (N_time>C_time+On_time){
+    if (9<H<10 || 21<H<22){
+      if (flag){
+        
+        Serial.println(On_time);
         digitalWrite(Valve,HIGH);
-        N_time = millis();
+        Serial.println("Auto Watering Happening");
+        delay(On_time/20);
+        digitalWrite(Valve,LOW);
+        Serial.println("Auto Watering stopped****************************************");
+        delay(10000);
+        flag=false;
+        //ESP.deepSleep(3600e6);
       }
-      digitalWrite(Valve,LOW);
-      delay(1000);
-      //ESP.deepSleep(3600e6);
+      
     }
+    else{
+        flag=true;
+    }
+    
   }
 }
 
 void Manual(){
 Serial.println("Manual");
 digitalWrite(Valve,HIGH);
-delay(300e3);
+Serial.println("Manual Watering Happening");
+delay(30e3);
+Serial.println("Manual Watering stopped****************************************");
 digitalWrite(Valve,LOW);
 server.send(200,"text/plain","Set to Manual");
 //ESP.deepSleep(3600e6);
@@ -227,5 +240,6 @@ void loop()
 if (mode=="AUTO"){
 Auto(temp,humidity,weather,H);
 }
+
 
 }
