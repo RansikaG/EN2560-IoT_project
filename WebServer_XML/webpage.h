@@ -179,7 +179,7 @@ R"=====(
     <div class="mode">
     <div id="autolabel">Auto </div>
         <label class="switch">
-            <input type="checkbox" id="toggle" aria-checked="true" onclick="JS2();">
+            <input type="checkbox" id="toggle" checked="true" onclick="JS2();">
             <span class="slider round"></span>
           </label><br>
         <button class=btn id="btn_M"  name="Manual" ONCLICK=' manual()' >MANUAL</button>
