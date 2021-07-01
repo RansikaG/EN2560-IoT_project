@@ -296,6 +296,7 @@
         temp = xml.getElementsByTagName('sys')[0].childNodes[0].innerHTML;
         humidity = xml.getElementsByTagName('sys')[0].childNodes[1].innerHTML;
         weather = xml.getElementsByTagName('sys')[0].childNodes[2].innerHTML;
+        console.log(xml.getElementsByTagName('utcoffset')[0].childNodes[0].innerHTML);
 
         document.getElementById("country_name").innerHTML = country;
         document.getElementById("city_name").innerHTML = city;
@@ -313,11 +314,6 @@
         }
     }
    
-
-    //function displays text message
-
-
-
     function auto() {
         document.getElementById("btn_M").style.borderColor = "white";
         const xhttp = new XMLHttpRequest();
