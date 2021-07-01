@@ -255,7 +255,8 @@ void Recorrect_sleep(){             // This function check the local time if it 
 void setup()
 {
   Serial.begin(115200);
-  pinMode(BUILTIN_LED, OUTPUT);   
+  pinMode(BUILTIN_LED, OUTPUT);
+  pinMode(Valve, OUTPUT);  
   WiFi.begin(ssid, password);
   while(WiFi.status()!=WL_CONNECTED){delay(500);Serial.print(".");}
   Serial.println();
