@@ -16,17 +16,34 @@
           cursor: pointer;}
         
         #btn_M{
-            background: rgb(0, 255, 13);
+            background: rgb(34, 128, 235,0.5);
             position:relative;
             left: 18%;
-            top:-20%
+            top:-15%;
+            font-size: 30px;
+            font-family: "Monaco", monospace;
+            border-radius: 5px;
+            color: rgb(228, 228, 228,0.5); 
+            box-shadow: 7px 6px 28px 1px rgba(0, 0, 0, 0.24);
+            cursor: pointer;
+            outline: none;
+            transition: 0.2s all;
+        }
+        #btn_M:active{
+            transform: scale(0.98);
+            /* Scaling button to 0.98 to its original size */
+            box-shadow: 3px 2px 22px 1px rgba(0, 0, 0, 0.24);
+            /* Lowering the shadow */
         }
 
         #location_btn{
-            background: rgb(144, 150, 155);
+            background: rgb(40, 116, 216,0.8);
             position:relative;
             left: 40%;
             top:-20%;
+            font-size: 30px;
+            font-family: "Monaco", monospace;
+            border-radius: 10px;
         }
         
         body {font-family: "Calibri"; background-color: grey}
@@ -35,28 +52,36 @@
         font-family: "Monaco", monospace;
         }
         h2   {
-            color: rgb(185, 97, 236); 
+            color: rgb(228, 228, 228); 
             text-align:center; }
             
         h3   {color: rgb(241, 238, 241);
          text-align:center; 
          font-family: "Monaco", monospace;
-        font-size: 45px;}
+        font-size: 45px;
+        }
         .container {
         width: 50px;
         clear: both;
         margin: auto;
         position: relative;
         width: 25%;
+        border-radius: 10px;
         border: 3px solid #090a07;
         padding: 10px;
         background-color: rgb(55, 141, 170);
                     }
         .container input {
-        width: 100%;
-        margin: auto;
+        width: 50px;
         clear: both;
-        
+        margin: auto;
+        width: 90%;
+        border: 3px solid #196aa0;
+        border-radius: 10px;
+        padding: 10px;
+        background-color: rgba(105, 185, 209, 0.849);
+        font-family: "Monaco", monospace;
+        font-size: 20px;
         }
 
         .details {
@@ -74,7 +99,6 @@
             font-family: "Helvetica", "Sans-serif";
             font-size: 20px;
             color: #11171ad8;
-
         }
 
         .data{
@@ -235,13 +259,14 @@
     </div>
 <!---------------------------JavaScript------------------------------->
 <script>
-    window.setInterval(refresh,30000);
+    window.setInterval(refresh,20000);
     document.addEventListener('DOMContentLoaded',refresh);
     //document.addEventListener('DOMContentLoaded',auto);
     document.addEventListener('DOMContentLoaded',JS2);//set to auto
             //fetch the data as soon as the page has loaded
             //setInterval(refresh,2000)
     function send_form_data(){
+        if(awake){
         console.log("form data bn");
         let city=document.getElementById("city").value;
         let country=document.getElementById("country").value;
@@ -252,11 +277,15 @@
         };
         xhttp.open("GET","/location?city="+city+"&country="+country);
         xhttp.send();
-        console.log("location data sent");
+        console.log("location data sent");}
+        else{
+            alert("Server is in deep-sleep. Try again in a few minutes.");
+        }
     }
 
     
     function refresh(){
+        if(awake){
         const xhttp = new XMLHttpRequest();
         let xml; 
         xhttp.onload = function(){
@@ -278,17 +307,16 @@
         xhttp.open("GET", "/xml");
         xhttp.send();
         //console.log("trying to get xml");
+        }
+        else{
+            return;
+        }
     }
    
 
     //function displays text message
-    let m1 = 'JavaScript is an object-oriented language';
 
-    function JS1()
-    {
-      alert(m1);
-      console.log("recieved");
-    }
+
 
     function auto() {
         document.getElementById("btn_M").style.borderColor = "white";
@@ -314,28 +342,38 @@
         xhttp.send();
     }
     //function prompts for name, then displays message
-    function JS2(checkbox)
+    function JS2()
     {
+        if(awake){
         if(document.getElementById("toggle").checked){
             document.getElementById("btn_M").disabled = true;//In auto
+            document.getElementById("btn_M").style.setProperty('background', 'rgb(34, 128, 235,0.5)');
+            document.getElementById("btn_M").style.setProperty('color', 'rgb(228, 228, 228,0.5)');
             auto();
             console.log("Auto enabled");
         }
         else{
             document.getElementById("btn_M").disabled = false;
-            document.getElementById("btn_M").style.borderColor = "red";
+            document.getElementById("btn_M").style.setProperty('background', 'rgb(34, 128, 235,0.8)');
+            document.getElementById("btn_M").style.setProperty('color', 'rgb(228, 228, 228,1)');
             console.log("Manual enabled");
             manual(water=false);
+        }}
+        else{
+            document.getElementById("toggle").checked=true;
+            alert("Server is in deep-sleep. Try again in a few minutes.");
+
         }
     }
- 
+    var timezone=19800;
+    var awake=true;//need to be set by the XML 
     function startTime() {
         var d = new Date();
         var diff = d.getTimezoneOffset();
         let unix_timestamp = Date.now();
         //console.log(unix_timestamp);
         //console.log(diff*60);
-        unix_timestamp=unix_timestamp+diff*60*1000;
+        unix_timestamp=unix_timestamp+diff*60*1000+timezone*1000;
         //console.log(unix_timestamp);
         // Create a new JavaScript Date object based on the timestamp
         // multiplied by 1000 so that the argument is in milliseconds, not seconds.
@@ -346,15 +384,44 @@
         var minutes = "0" + date.getMinutes();
         // Seconds part from the timestamp
         var seconds = "0" + date.getSeconds();
-
+        deepsleep(minutes.substr(-2),seconds.substr(-2));
         // Will display time in 10:30:23 format
         var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
         //console.log(formattedTime);
         document.getElementById('clock').innerHTML =  formattedTime;
         setTimeout(startTime, 1000);
         }
+    var startflag=true;//need to change to false in the implementation
+    function deepsleep(minutes,seconds){
+        
+        if(minutes=="00" && seconds=="00"){//Initial syncing(done by startflag) and the hourly syncing
+         check_awake();
+         startflag=true;
+         console.log("Case1");
+        }
+        else if((parseInt(minutes)%6==0 || parseInt(minutes)%6==1)&&(seconds=="00")){//After schedule started
+        check_awake();
+        console.log("Case2");
+        }
+        else if(((parseInt(minutes)%6==2)||(parseInt(minutes)%6==3)||(parseInt(minutes)%6==4)||(parseInt(minutes)%6==5))&&(seconds=="00")&&startflag){
+        console.log("Case3");
+        awake=false;
+        console.log(minutes);
 
+        }
+        }
 
+    function check_awake(){
+        const xhttp = new XMLHttpRequest();
+            xhttp.onload = function(){
+            if(this.responseText=="true"){
+                awake=true;
+            };
+
+            };
+            xhttp.open("GET", "/wake");
+            xhttp.send();
+    }
         
     
 </script>
