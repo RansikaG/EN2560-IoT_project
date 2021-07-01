@@ -1,6 +1,9 @@
-//============================================
-//ESP8266 Web Server (HTML + CSS + JavaScript)
-//============================================
+//=====================================================
+//EN2560 - IoT - Group 05 (180195A / 180205H / 180241M)
+//=====================================================
+//==================================================
+//ESP8266 Web Server (C++ + HTML + CSS + JavaScript)
+//==================================================
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <PubSubClient.h>
@@ -8,16 +11,16 @@
 #include <WiFiUdp.h>
 #include <TimeLib.h>
 #include "webpage.h";
-//#include <bits/stdc++.h>
-
+using namespace std;
 
 #define Valve D4
 
-using namespace std;
-String utcOffsetInSeconds_s;
-int utcOffsetInSeconds=0;
+
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org",0);
+
+String utcOffsetInSeconds_s;
+int utcOffsetInSeconds=0;
 int H;
 int M;
 int S;
@@ -25,6 +28,7 @@ int Time;
 
 int Starting_time;
 int Current_time;
+
 
 
 //------------------------------------------
@@ -157,6 +161,8 @@ void method(){
 
 }
 
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+
 void Auto(String temp,String humidity, String weather, int H){
 //Serial.println("Auto");
 String mode="AUTO";
@@ -180,7 +186,7 @@ if (weather=="rain" ||weather=="shower rain"|| weather=="thunderstorm"){
         Serial.println("Auto Watering stopped****************************************");
         delay(1000);
         flag=false;
-        ESP.deepSleep(3600e6);
+        Recorrect_sleep();
       }
       
     }
@@ -200,7 +206,10 @@ void Manual(){
   server.send(200,"text/plain","Manual watering happened");
   //ESP.deepSleep(3600e6);
 }
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+
 void location() { //Handler for the body path
       if (server.hasArg("country")== false){ //Check if body received
             return;
@@ -217,19 +226,31 @@ void location() { //Handler for the body path
     return;
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-void Reg_sleep(int H,int M){             // This function check the local time if it is not close to the watering time, ESP will goto a 5 Mins deep sleep.
-  
-  //int h=H.toInt();
-  //int m=M.toInt();
-
-  if (not(9<H<10 || 16<H<17)){
-    ESP.deepSleep(300e6);
-  }
-  else if (not(50<M<60)){
-    ESP.deepSleep(300e6);
-  }
+void Get_time(){
+    timeClient.update();                            // This function gets the local time of the NodeMCU. This should run frequently
+    H=timeClient.getHours();
+    M=timeClient.getMinutes();
+    S=timeClient.getSeconds();
+    Time=H*3600+M*60+S;
+    Time=Time+utcOffsetInSeconds;
+    
+    H= floor(Time/3600);
+    Time=Time%3600;
+    M=floor(Time/60);
+    S=Time%60;
 }
+
+void Recorrect_sleep(){             // This function check the local time if it is not close to the watering time, ESP will goto a 5 Mins deep sleep.
+  Get_time();
+  while (not((M-2)%6==0)){
+    Get_time();  
+  }
+  ESP.deepSleep(239e6);
+}
+
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=++++++
+
+
 //=================================================================
 void setup()
 {
@@ -281,9 +302,13 @@ void loop()
     Serial.println(S);
     
   if (mode=="AUTO"){
+    
     Current_time=millis();
+    if ((M==2 && S==0)||(M==2 && S==1)||(M==2 && S==2)||(M==2 && S==3)||(M==2 && S==4)||(M==2 && S==5)){
+      ESP.deepSleep(240e6);  
+    }
     if (Current_time>Starting_time+120e3){         // Auto function deepsleep
-      ESP.deepSleep(300e6);
+      ESP.deepSleep(240e6);
     }
     Auto(temp,humidity,weather,H);
   }
