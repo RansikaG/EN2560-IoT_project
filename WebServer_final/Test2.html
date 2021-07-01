@@ -30,9 +30,18 @@
         }
         
         body {font-family: "Calibri"; background-color: grey}
-        h1   {color: rgb(62, 161, 207); text-align:center; font-size: 50px;}
-        h2   {color: rgb(185, 97, 236); text-align:center; font-size: 30px;}
-        h3   {color: rgb(185, 97, 236); text-align:center; font-size: 30px;}
+        h1   {color: rgb(62, 161, 207); text-align:center; 
+        font-size: 50px;
+        font-family: "Monaco", monospace;
+        }
+        h2   {
+            color: rgb(185, 97, 236); 
+            text-align:center; }
+            
+        h3   {color: rgb(241, 238, 241);
+         text-align:center; 
+         font-family: "Monaco", monospace;
+        font-size: 45px;}
         .container {
         width: 50px;
         clear: both;
@@ -55,16 +64,31 @@
         clear: both;
         margin: auto;
         width: 25%;
-        border: 3px solid #73AD21;
+        border: 3px solid #196aa0;
+        border-radius: 10px;
         padding: 10px;
-        background-color: rgb(68, 175, 77);
+        background-color: rgba(105, 185, 209, 0.849);
                     }
+
+        .attribute{
+            font-family: "Helvetica", "Sans-serif";
+            font-size: 20px;
+            color: #11171ad8;
+
+        }
+
+        .data{
+            font-family: "Helvetica", "Sans-serif";
+            font-size: 20px;
+            color: #11171ad8;
+        }
            
         body {
         background-image: url('https://www.attractionsinsrilanka.com/wp-content/uploads/2020/02/Gampaha-Botanical-Garden-1.jpg');
         background-repeat: no-repeat;
         background-attachment: fixed;
         background-size: cover;
+        background-blend-mode:color-burn;
         }
 
         .mode{
@@ -79,6 +103,7 @@
         #autolabel{
             font-family: "Lucida Console", monospace;
             font-size: 45px;
+            color: rgb(140, 247, 211);
         }
 
         .switch {
@@ -143,12 +168,41 @@
         border-radius: 50%;
         }
 
+        #clock {
+        font-family: 'Orbitron', sans-serif;
+        color: #d0dfd5;
+        font-size: 50px;
+        text-align: center;
+        padding-top: 40px;
+        padding-bottom: 40px;
+        background-color: rgba(45, 116, 223, 0.4);
+        width:250px;
+        line-height: 15px;
+        height: 15px;
+        margin: auto;
+        border: 3px solid #0b6088;
+        border-radius: 5px;
+        }
 
+       .loclabel{
+        font-family: "Helvetica", "Sans-serif";
+        font-size: 20px;
+        color: #11171ad8;
+   
+       }
+
+       .locdata{
+        font-family: "Helvetica", "Sans-serif";
+        font-size: 20px;
+        color: #c3d1d8d8;
+       }
+
+    
 
     </style>
 </head>
 <!----------------------------H T M L--------------------------------->
-<body>
+<body onload="startTime()">
     <h1 id="title">Garden Watering System</h1>
     
     <h2>
@@ -156,21 +210,21 @@
     </h2>
     <div class="container">
     <form id="myform">
-        <label for="city">City:</label><label id="city_name">None</label><br>
+        <label class="loclabel" for="city">City:</label><label class="locdata" id="city_name">None</label><br>
         <input type="text" id="city" ><br>
-        <label for="country">Country:</label><label id="country_name">None</label><br>
+        <label class="loclabel" for="country">Country:</label><label class="locdata" id="country_name">None</label><br>
         <input type="text" id="country"><br><br>
         <button type="button" id="location_btn" name="Submit" onclick="send_form_data()">SET</button>
       </form>
     </div><br>
     <div class="details">
-        <label>Temperature:</label><label id="temp">None</label><br>
-        <label>Humidity:</label><label id="humidity">None</label><br>
-        <label>Weather:</label><label id="weather">None</label><br> 
+        <label class="attribute">Temperature:</label><label class="data" id="temp">None</label><br>
+        <label class="attribute">Humidity:</label><label class="data" id="humidity">None</label><br>
+        <label class="attribute">Weather:</label><label class="data" id="weather">None</label><br> 
     </div>
 
     <h3>Operating Mode</h3><br>
-
+    <div id="clock"></div><br>
     <div class="mode">
     <div id="autolabel">Auto </div>
         <label class="switch">
@@ -181,7 +235,7 @@
     </div>
 <!---------------------------JavaScript------------------------------->
 <script>
-    window.setInterval(refresh,30000)
+    window.setInterval(refresh,30000);
     document.addEventListener('DOMContentLoaded',refresh);
     //document.addEventListener('DOMContentLoaded',auto);
     document.addEventListener('DOMContentLoaded',JS2);//set to auto
@@ -274,15 +328,31 @@
             manual(water=false);
         }
     }
-    //function computes factorial of integer number
-    function JS3()
-    {
-        let f = 1;
-        let n = prompt('FACTORIAL\nEnter positive integer number: ');
-        for(let i=1; i<=n; i++) f = f * i;
-        alert('Factorial = ' + f);
-    } 
+ 
+    function startTime() {
+        var d = new Date();
+        var diff = d.getTimezoneOffset();
+        let unix_timestamp = Date.now();
+        //console.log(unix_timestamp);
+        //console.log(diff*60);
+        unix_timestamp=unix_timestamp+diff*60*1000;
+        //console.log(unix_timestamp);
+        // Create a new JavaScript Date object based on the timestamp
+        // multiplied by 1000 so that the argument is in milliseconds, not seconds.
+        var date = new Date(unix_timestamp);
+        // Hours part from the timestamp
+        var hours = date.getHours();
+        // Minutes part from the timestamp
+        var minutes = "0" + date.getMinutes();
+        // Seconds part from the timestamp
+        var seconds = "0" + date.getSeconds();
 
+        // Will display time in 10:30:23 format
+        var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+        //console.log(formattedTime);
+        document.getElementById('clock').innerHTML =  formattedTime;
+        setTimeout(startTime, 1000);
+        }
 
 
         
