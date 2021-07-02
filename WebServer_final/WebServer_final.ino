@@ -315,7 +315,7 @@ void loop()
     if ((M==2 && S==0)||(M==2 && S==1)||(M==2 && S==2)||(M==2 && S==3)||(M==2 && S==4)||(M==2 && S==5)){
       ESP.deepSleep(240e6);  
     }
-    if (Current_time>Starting_time+120e3){         // Auto function deepsleep
+    else if ((M-2)%6==0){         // Auto function deepsleep
       ESP.deepSleep(240e6);
     }
     Auto(temp,humidity,weather,H);
