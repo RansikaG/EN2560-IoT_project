@@ -226,6 +226,30 @@ R"=====(
         color: #c3d1d8d8;
        }
 
+
+       #alert {
+        padding: 20px;
+        background-color: #1a9c25;
+        color: white;
+        opacity:0;
+        display:block;
+        transition: 1s ease opacity;
+        }
+
+        .closebtn {
+        margin-left: 15px;
+        color: white;
+        font-weight: bold;
+        float: right;
+        font-size: 22px;
+        line-height: 20px;
+        cursor: pointer;
+        transition: 0.3s;
+        }
+
+        .closebtn:hover {
+        color: black;
+        }
     
 
     </style>
@@ -255,13 +279,17 @@ R"=====(
     <h3>Operating Mode</h3><br>
     <div id="clock"></div><br>
     <div class="mode">
-    <div id="autolabel">Auto </div>
+    <div id="autolabel" onmouseover="Auto_details()">Auto </div>
         <label class="switch">
             <input type="checkbox" id="toggle" checked="true" onclick="JS2();">
             <span class="slider round"></span>
           </label><br>
         <button class=btn id="btn_M"  name="Manual" ONCLICK=' manual(water=true)' >MANUAL</button>
     </div>
+    <div id="alert">
+        <span class="closebtn" onclick="this.parentElement.style.opacity='0';">&times;</span> 
+        <strong>AUTO MODE:</strong> Watering is done once between 9.00 AM - 10.00 AM and 4.00 PM - 5.00PM
+      </div>
 <!---------------------------JavaScript------------------------------->
 <script>
     window.setInterval(refresh,20000);
@@ -284,7 +312,9 @@ R"=====(
         xhttp.send();
         console.log("location data sent");}
         else{
-            alert("Server is in deep-sleep. Try again in a few minutes.");
+            var diff=(6-minutes%6);
+            var wait=diff.toString();
+            alert("Server is Sleeping. Try again in " +wait+ "minutes.");
         }
     }
 
@@ -301,7 +331,8 @@ R"=====(
         temp = xml.getElementsByTagName('sys')[0].childNodes[0].innerHTML;
         humidity = xml.getElementsByTagName('sys')[0].childNodes[1].innerHTML;
         weather = xml.getElementsByTagName('sys')[0].childNodes[2].innerHTML;
-        console.log(xml.getElementsByTagName('utcoffset')[0].childNodes[0].innerHTML);
+        var timeoffset=xml.getElementsByTagName('loc')[0].childNodes[2].innerHTML;
+        timezone=parseInt(timeoffset);
 
         document.getElementById("country_name").innerHTML = country;
         document.getElementById("city_name").innerHTML = city;
@@ -317,6 +348,10 @@ R"=====(
         else{
             return;
         }
+    }
+    function Auto_details(){
+    document.getElementById("alert").style.setProperty('opacity', '1');
+    
     }
    
     function auto() {
@@ -362,12 +397,19 @@ R"=====(
         }}
         else{
             document.getElementById("toggle").checked=true;
-            alert("Server is in deep-sleep. Try again in a few minutes.");
+            var diff=(6-minutes%6);
+            var wait=diff.toString();
+            alert("Server is Sleeping. Try again in " +wait+ "minutes.");
 
         }
     }
-    var timezone=19800;
-    var awake=true;//need to be set by the XML 
+    var timezone=0;
+    var awake=true;
+    var hours;
+    var minutes;
+    var seconds;
+    
+    //need to be set by the XML 
     function startTime() {
         var d = new Date();
         var diff = d.getTimezoneOffset();
@@ -380,11 +422,11 @@ R"=====(
         // multiplied by 1000 so that the argument is in milliseconds, not seconds.
         var date = new Date(unix_timestamp);
         // Hours part from the timestamp
-        var hours = date.getHours();
+        hours = date.getHours();
         // Minutes part from the timestamp
-        var minutes = "0" + date.getMinutes();
+        minutes = "0" + date.getMinutes();
         // Seconds part from the timestamp
-        var seconds = "0" + date.getSeconds();
+        seconds = "0" + date.getSeconds();
         deepsleep(minutes.substr(-2),seconds.substr(-2));
         // Will display time in 10:30:23 format
         var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
@@ -392,23 +434,21 @@ R"=====(
         document.getElementById('clock').innerHTML =  formattedTime;
         setTimeout(startTime, 1000);
         }
-    var startflag=true;//need to change to false in the implementation
+    var startflag=false;//need to change to false in the implementation
     function deepsleep(minutes,seconds){
-        
         if(minutes=="00" && seconds=="00"){//Initial syncing(done by startflag) and the hourly syncing
          check_awake();
          startflag=true;
          console.log("Case1");
         }
-        else if((parseInt(minutes)%6==0 || parseInt(minutes)%6==1)&&(seconds=="00")){//After schedule started
+        else if(((parseInt(minutes)%6==0)||(parseInt(minutes)%6==1))&&(seconds=="00")){//After schedule started
         check_awake();
         console.log("Case2");
         }
-        else if(((parseInt(minutes)%6==2)||(parseInt(minutes)%6==3)||(parseInt(minutes)%6==4)||(parseInt(minutes)%6==5))&&(seconds=="00")&&startflag){
+        else if(((parseInt(minutes)%6==3)||(parseInt(minutes)%6==4)||(parseInt(minutes)%6==5))&&(seconds=="00")&&startflag){
         console.log("Case3");
         awake=false;
         console.log(minutes);
-
         }
         }
 

@@ -25,7 +25,7 @@ int H;
 int M;
 int S;
 int Time;
-bool FLAG_loop=true;
+bool FLAG_loop=false;
 
 int Starting_time;
 int Current_time;
@@ -38,8 +38,10 @@ bool awake=true;
 ESP8266WebServer server(80);
 WiFiClient espClient;
 PubSubClient client(espClient);
-const char* ssid = "SLT-4G-3F4C";
-const char* password = "5HJ39M13JDM";
+//const char* ssid = "SLT-4G-3F4C";
+//const char* password = "5HJ39M13JDM";
+const char* ssid = "RANSIKA";
+const char* password = "RWIFI1234";
 
 const char* mqtt_server = "test.mosquitto.org";
 const char* outTopic = "ENTC/EN2560/out/180241M";
@@ -95,11 +97,8 @@ void callback(char* topic, byte* payload, unsigned int length) {                
     country_nodered=getValue(weatherDetails, ',', 4);
     utcOffsetInSeconds_s=getValue(weatherDetails, ',', 5);
     utcOffsetInSeconds=utcOffsetInSeconds_s.toInt();
-    
-    
-    Serial.println("temp"+temp);
-    //Serial.println("location"+location);
-    char msgr[30]="got it";
+  
+    char msgr[30]="MQTT receievd";
     Serial.println(msgr);
     XML();
 }
@@ -135,7 +134,7 @@ void reconnect() {                                                              
 //------------------------------------------
 void XML()                                                                        // Send data to the web page in XML format
 {
-  String xml="<?xml version = \"1.0\" ?><inputs><locset>"+locset+"</locset><loc><country>"+country_nodered+"</country><city>"+city_nodered+"</city></loc><sys><temp>"+temp+"</temp><humidity>"+humidity+"</humidity><weather>"+weather+"</weather></sys><mode>"+mode+"</mode><utcoffset>"+utcOffsetInSeconds_s+"</utcoffset></inputs>";
+  String xml="<?xml version = \"1.0\" ?><inputs><locset>"+locset+"</locset><loc><country>"+country_nodered+"</country><city>"+city_nodered+"</city><utcoffset>"+utcOffsetInSeconds_s+"</utcoffset></loc><sys><temp>"+temp+"</temp><humidity>"+humidity+"</humidity><weather>"+weather+"</weather></sys><mode>"+mode+"</mode></inputs>";
   server.send(200,"text/XML",xml);
   Serial.println("xml sent");
 }
@@ -188,7 +187,7 @@ if (weather=="rain" ||weather=="shower rain"|| weather=="thunderstorm"){
     
     unsigned long On_time=temp.toFloat()/10*6e4 + (100-humidity.toFloat())/50*6e4;
     //int h=H.toInt();
-    Serial.println(H);
+    //Serial.println(H);
     if ((9<=H && H<10) || (21<=H && H<22)){
       if (flag){
         

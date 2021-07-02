@@ -326,7 +326,8 @@
         temp = xml.getElementsByTagName('sys')[0].childNodes[0].innerHTML;
         humidity = xml.getElementsByTagName('sys')[0].childNodes[1].innerHTML;
         weather = xml.getElementsByTagName('sys')[0].childNodes[2].innerHTML;
-        console.log(xml.getElementsByTagName('utcoffset')[0].childNodes[0].innerHTML);
+        var timeoffset=xml.getElementsByTagName('loc')[0].childNodes[2].innerHTML;
+        timezone=parseInt(timeoffset);
 
         document.getElementById("country_name").innerHTML = country;
         document.getElementById("city_name").innerHTML = city;
@@ -397,7 +398,7 @@
 
         }
     }
-    var timezone=19800;
+    var timezone=0;
     var awake=true;
     var hours;
     var minutes;
@@ -428,7 +429,7 @@
         document.getElementById('clock').innerHTML =  formattedTime;
         setTimeout(startTime, 1000);
         }
-    var startflag=true;//need to change to false in the implementation
+    var startflag=false;//need to change to false in the implementation
     function deepsleep(minutes,seconds){
         if(minutes=="00" && seconds=="00"){//Initial syncing(done by startflag) and the hourly syncing
          check_awake();
