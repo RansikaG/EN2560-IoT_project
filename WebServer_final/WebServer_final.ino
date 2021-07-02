@@ -25,7 +25,7 @@ int H;
 int M;
 int S;
 int Time;
-bool FLAG_loop=true;
+bool FLAG_loop=false;
 
 int Starting_time;
 int Current_time;
