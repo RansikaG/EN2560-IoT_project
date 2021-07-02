@@ -25,6 +25,7 @@ int H;
 int M;
 int S;
 int Time;
+bool FLAG_loop=true;
 
 int Starting_time;
 int Current_time;
@@ -35,8 +36,8 @@ int Current_time;
 ESP8266WebServer server(80);
 WiFiClient espClient;
 PubSubClient client(espClient);
-const char* ssid = "RANSIKA";
-const char* password = "RWIFI1234";
+const char* ssid = "SLT-4G-3F4C";
+const char* password = "5HJ39M13JDM";
 
 const char* mqtt_server = "test.mosquitto.org";
 const char* outTopic = "ENTC/EN2560/out/180241M";
@@ -101,6 +102,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
 void reconnect() {
   // Loop until we're reconnected
+  
   while (!client.connected()) {
     Serial.print("Attempting MQTT connection...");
     // Create a random client ID
@@ -179,7 +181,7 @@ if (weather=="rain" ||weather=="shower rain"|| weather=="thunderstorm"){
     unsigned long On_time=temp.toFloat()/10*6e4 + (100-humidity.toFloat())/50*6e4;
     //int h=H.toInt();
     Serial.println(H);
-    if (9<H<10 || 16<H<17){
+    if ((9<H && H<10) || (16<H && H<17)){
       if (flag){
         
         Serial.println(On_time);
@@ -210,6 +212,34 @@ void Manual(){
   server.send(200,"text/plain","Manual watering happened");
   //ESP.deepSleep(3600e6);
 }
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void light_sleep(){
+   wifi_station_disconnect();
+   wifi_set_opmode_current(NULL_MODE);
+   wifi_fpm_set_sleep_type(LIGHT_SLEEP_T); // set sleep type, the above    posters wifi_set_sleep_type() didnt seem to work for me although it did let me compile and upload with no errors 
+   wifi_fpm_open(); // Enables force sleep
+   //gpio_pin_wakeup_enable(GPIO_ID_PIN(2), GPIO_PIN_INTR_LOLEVEL); // GPIO_ID_PIN(2) corresponds to GPIO2 on ESP8266-01 , GPIO_PIN_INTR_LOLEVEL for a logic low, can also do other interrupts, see gpio.h above
+   wifi_fpm_do_sleep(240e3); // Sleep for longest possible time
+   Serial.println("going to wifi sleep");
+ }
+
+ void initWifi() {
+  WiFi.begin(ssid, password);
+  while(WiFi.status()!=WL_CONNECTED){delay(500);Serial.print(".");}
+  Serial.println();
+  Serial.print("IP Address: "); Serial.println(WiFi.localIP());
+  server.on("/", webpage);
+  server.on("/method", method);
+  server.on("/xml",XML);
+  server.on("/location", location);
+  server.on("/wake",awake_confirm);
+  server.begin();
+  
+  client.setServer(mqtt_server, 1883);
+  client.setCallback(callback);
+ }
 
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -249,7 +279,7 @@ void Recorrect_sleep(){             // This function check the local time if it 
   while (not((M-2)%6==0)){
     Get_time();  
   }
-  ESP.deepSleep(239e6);
+  light_sleep();
 }
 
 
@@ -312,11 +342,15 @@ void loop()
   if (mode=="AUTO"){
     
     Current_time=millis();
-    if ((M==2 && S==0)||(M==2 && S==1)||(M==2 && S==2)||(M==2 && S==3)||(M==2 && S==4)||(M==2 && S==5)){
-      ESP.deepSleep(240e6);  
+    if (M==2 && S==0){
+      light_sleep();
+      FLAG_loop=true;  
     }
-    else if ((M-2)%6==0){         // Auto function deepsleep
-      ESP.deepSleep(240e6);
+    else if (FLAG_loop && (M-2)%6==0 && S==0){         // Auto function deepsleep
+      light_sleep();
+    }
+    else if(FLAG_loop && M%6==0 && S==0){
+      initWifi();
     }
     Auto(temp,humidity,weather,H);
   }
