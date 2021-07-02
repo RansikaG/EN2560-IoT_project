@@ -25,7 +25,7 @@ int H;
 int M;
 int S;
 int Time;
-bool FLAG_loop=false;
+bool FLAG_loop=true;
 
 int Starting_time;
 int Current_time;
@@ -60,10 +60,13 @@ String city_nodered="None";
 String temp="0";
 String humidity="0";
 String weather="None";
-bool flag=true;
 
+bool flag=true;
 String mode="AUTO";
-//-----------MQTT functions---------------------------
+
+
+
+//-----------MQTT functions---------------------------                              // Feed from the NodeRed is seperated in to different variables
 
 String getValue(String data, char separator, int index)
 {
@@ -80,7 +83,7 @@ String getValue(String data, char separator, int index)
     return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
 
-void callback(char* topic, byte* payload, unsigned int length) {
+void callback(char* topic, byte* payload, unsigned int length) {                     // Take the incomming MQTT Messages and update NodeMCU global variables
   String weatherDetails = "";
   for (int i = 0; i < length; i++) {
     weatherDetails += (char)payload[i];
@@ -102,7 +105,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 }
 
 
-void reconnect() {
+void reconnect() {                                                                  // Reconnect to the MQTT server when the connection is lost
   // Loop until we're reconnected
   
   while ((!client.connected()) && awake) {
@@ -127,19 +130,21 @@ void reconnect() {
   }
 }
 
+
+
 //------------------------------------------
-void XML()
+void XML()                                                                        // Send data to the web page in XML format
 {
   String xml="<?xml version = \"1.0\" ?><inputs><locset>"+locset+"</locset><loc><country>"+country_nodered+"</country><city>"+city_nodered+"</city></loc><sys><temp>"+temp+"</temp><humidity>"+humidity+"</humidity><weather>"+weather+"</weather></sys><mode>"+mode+"</mode><utcoffset>"+utcOffsetInSeconds_s+"</utcoffset></inputs>";
   server.send(200,"text/XML",xml);
   Serial.println("xml sent");
 }
-void webpage()
+void webpage()                                                                   // Refresh the web page
 {
   server.send(200,"text/html", webpageCode);
 
 }
-void method(){
+void method(){                                                                   // Change the watering Mode (Auto/Manula). Desided by the button on the web page
     Serial.println("method invoked");
     if (server.arg("Auto")=="true"&&server.arg("Manual")=="false"){
             mode="AUTO";
@@ -165,13 +170,13 @@ void method(){
 
 }
 
-void awake_confirm(){
-server.send(200,"text/plain","true");
+void awake_confirm(){                                                         // Check whether the NodeMCU is awake
+  server.send(200,"text/plain","true");
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
-void Auto(String temp,String humidity, String weather, int H){
+void Auto(String temp,String humidity, String weather, int H){                                 // Automatical watering for a calculated time depend of Temperature and the Humidity
 //Serial.println("Auto");
 String mode="AUTO";
 
@@ -184,7 +189,7 @@ if (weather=="rain" ||weather=="shower rain"|| weather=="thunderstorm"){
     unsigned long On_time=temp.toFloat()/10*6e4 + (100-humidity.toFloat())/50*6e4;
     //int h=H.toInt();
     Serial.println(H);
-    if ((9<=H && H<10) || (16<=H && H<17)){
+    if ((9<=H && H<10) || (21<=H && H<22)){
       if (flag){
         
         Serial.println(On_time);
@@ -206,7 +211,7 @@ if (weather=="rain" ||weather=="shower rain"|| weather=="thunderstorm"){
   }
 }
 
-void Manual(){
+void Manual(){                                                                                    // Manual wetering
   digitalWrite(Valve,HIGH);
   Serial.println("Manual Watering Happening");
   delay(30e3);
@@ -218,7 +223,7 @@ void Manual(){
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void light_sleep(){
+void light_sleep(){                                                                             // NodeMCU sleep for 3 minutes. (3 min awake/ 3 min sleep)
   awake=false;
    wifi_station_disconnect();
    wifi_set_opmode_current(NULL_MODE);
@@ -230,7 +235,7 @@ void light_sleep(){
    Serial.println("going to wifi sleep");
  }
 
- void initWifi() {
+ void initWifi() {                                                                            // Reinitializing WiFi connectivity after awaking
   WiFi.begin(ssid, password);
   while(WiFi.status()!=WL_CONNECTED){delay(500);Serial.print(".");}
   Serial.println();
@@ -249,7 +254,7 @@ void light_sleep(){
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
-void location() { //Handler for the body path
+void location() { //Handler for the body path                                                // Send the collected location details from the web page, to the NodeRed. This fuction act as a middle man.
       if (server.hasArg("country")== false){ //Check if body received
             return;
       }
@@ -293,7 +298,7 @@ void setup()
 //=================================================================
 void loop()
 {
-  //delay(100);
+  
   server.handleClient();
   
   if (!client.connected()) {
@@ -302,8 +307,7 @@ void loop()
   client.loop();
   
   
-  timeClient.update();                            // This function gets the local time of the NodeMCU. This should run frequently
-    H=timeClient.getHours();
+  timeClient.update();                            // This function gets the local time of the NodeMCU using the NTP server.
     M=timeClient.getMinutes();
     S=timeClient.getSeconds();
     Time=H*3600+M*60+S;
@@ -314,13 +318,13 @@ void loop()
     M=floor(Time/60);
     S=Time%60;
 
-    Serial.print(H);
+    /*Serial.print(H);
     Serial.print(" : ");
     Serial.print(M);
     Serial.print(" : ");
-    Serial.println(S);
+    Serial.println(S);*/
     
-  if (mode=="AUTO"){
+  if (mode=="AUTO"){                                     // Automatical Process
     
     //Current_time=millis();
     if (M==3 && S==0){
