@@ -4,6 +4,7 @@
 //==================================================
 //ESP8266 Web Server (C++ + HTML + CSS + JavaScript)
 //==================================================
+
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <PubSubClient.h>
@@ -35,8 +36,8 @@ int Current_time;
 ESP8266WebServer server(80);
 WiFiClient espClient;
 PubSubClient client(espClient);
-const char* ssid = "RANSIKA";
-const char* password = "RWIFI1234";
+const char* ssid = "SLT-4G-3F4C";
+const char* password = "5HJ39M13JDM";
 
 const char* mqtt_server = "test.mosquitto.org";
 const char* outTopic = "ENTC/EN2560/out/180241M";
@@ -126,7 +127,7 @@ void reconnect() {
 //------------------------------------------
 void XML()
 {
-  String xml="<?xml version = \"1.0\" ?><inputs><locset>"+locset+"</locset><loc><country>"+country_nodered+"</country><city>"+city_nodered+"</city></loc><sys><temp>"+temp+"</temp><humidity>"+humidity+"</humidity><weather>"+weather+"</weather></sys><mode>"+mode+"</mode><utcoffset>"+utcOffsetInSeconds_s+"</utcoffset></inputs>";
+  String xml="<?xml version = \"1.0\" ?><inputs><locset>"+locset+"</locset><loc><country>"+country_nodered+"</country><city>"+city_nodered+"</city></loc><sys><temp>"+temp+"</temp><humidity>"+humidity+"</humidity><weather>"+weather+"</weather></sys><mode>"+mode+"</mode></inputs>";
   server.send(200,"text/XML",xml);
   Serial.println("xml sent");
 }
@@ -159,10 +160,6 @@ void method(){
       return;
     }
 
-}
-
-void awake_confirm(){
-server.send(200,"text/plain","true");
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -252,8 +249,6 @@ void Recorrect_sleep(){             // This function check the local time if it 
   ESP.deepSleep(239e6);
 }
 
-
-
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=++++++
 
 
@@ -262,7 +257,7 @@ void setup()
 {
   Serial.begin(115200);
   pinMode(BUILTIN_LED, OUTPUT);
-  pinMode(Valve, OUTPUT);  
+  pinMode(Valve, OUTPUT);    
   WiFi.begin(ssid, password);
   while(WiFi.status()!=WL_CONNECTED){delay(500);Serial.print(".");}
   Serial.println();
@@ -271,10 +266,9 @@ void setup()
   server.on("/method", method);
   server.on("/xml",XML);
   server.on("/location", location);
-  server.on("/wake",awake_confirm);
   server.begin();
 
-  Starting_time=millis();
+  //Starting_time=millis();
   
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
@@ -311,11 +305,11 @@ void loop()
     
   if (mode=="AUTO"){
     
-    Current_time=millis();
+    //Current_time=millis();
     if ((M==2 && S==0)||(M==2 && S==1)||(M==2 && S==2)||(M==2 && S==3)||(M==2 && S==4)||(M==2 && S==5)){
       ESP.deepSleep(240e6);  
     }
-    if (Current_time>Starting_time+120e3){         // Auto function deepsleep
+    else if ((M-2)%6==0){         // Auto function deepsleep
       ESP.deepSleep(240e6);
     }
     Auto(temp,humidity,weather,H);
