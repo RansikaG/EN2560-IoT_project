@@ -30,6 +30,7 @@ bool FLAG_loop=true;
 int Starting_time;
 int Current_time;
 
+bool awake=true;
 
 
 //------------------------------------------
@@ -103,7 +104,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 void reconnect() {
   // Loop until we're reconnected
   
-  while (!client.connected()) {
+  while ((!client.connected()) && awake) {
     Serial.print("Attempting MQTT connection...");
     // Create a random client ID
     String clientId = "ESP8266Client-";
@@ -216,11 +217,13 @@ void Manual(){
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void light_sleep(){
+  awake=false;
    wifi_station_disconnect();
    wifi_set_opmode_current(NULL_MODE);
    wifi_fpm_set_sleep_type(LIGHT_SLEEP_T); // set sleep type, the above    posters wifi_set_sleep_type() didnt seem to work for me although it did let me compile and upload with no errors 
    wifi_fpm_open(); // Enables force sleep
-   //gpio_pin_wakeup_enable(GPIO_ID_PIN(2), GPIO_PIN_INTR_LOLEVEL); // GPIO_ID_PIN(2) corresponds to GPIO2 on ESP8266-01 , GPIO_PIN_INTR_LOLEVEL for a logic low, can also do other interrupts, see gpio.h above
+   delay(100);
+   gpio_pin_wakeup_enable(GPIO_ID_PIN(0), GPIO_PIN_INTR_LOLEVEL);
    wifi_fpm_do_sleep(240e3); // Sleep for longest possible time
    Serial.println("going to wifi sleep");
  }
@@ -280,6 +283,7 @@ void Recorrect_sleep(){             // This function check the local time if it 
     Get_time();  
   }
   light_sleep();
+  delay(200);
 }
 
 
@@ -292,6 +296,8 @@ void setup()
 {
   Serial.begin(115200);
   pinMode(BUILTIN_LED, OUTPUT);
+  pinMode(D0, OUTPUT);
+  digitalWrite(D0,HIGH);
   pinMode(Valve, OUTPUT);  
   WiFi.begin(ssid, password);
   while(WiFi.status()!=WL_CONNECTED){delay(500);Serial.print(".");}
@@ -304,7 +310,7 @@ void setup()
   server.on("/wake",awake_confirm);
   server.begin();
 
-  Starting_time=millis();
+  //Starting_time=millis();
   
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
@@ -312,7 +318,7 @@ void setup()
 //=================================================================
 void loop()
 {
-  
+  //delay(100);
   server.handleClient();
   
   if (!client.connected()) {
@@ -341,16 +347,20 @@ void loop()
     
   if (mode=="AUTO"){
     
-    Current_time=millis();
+    //Current_time=millis();
     if (M==2 && S==0){
+      FLAG_loop=true;
       light_sleep();
-      FLAG_loop=true;  
+      delay(200);
+        
     }
     else if (FLAG_loop && (M-2)%6==0 && S==0){         // Auto function deepsleep
       light_sleep();
+      delay(200);
     }
     else if(FLAG_loop && M%6==0 && S==0){
       initWifi();
+      awake=true;
     }
     Auto(temp,humidity,weather,H);
   }
