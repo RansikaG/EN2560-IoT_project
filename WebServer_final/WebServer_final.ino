@@ -29,6 +29,7 @@ bool FLAG_loop=true;
 
 int Starting_time;
 int Current_time;
+int RST_count=0;
 
 bool awake=true;
 
@@ -173,6 +174,7 @@ server.send(200,"text/plain","true");
 void Auto(String temp,String humidity, String weather, int H){
 //Serial.println("Auto");
 String mode="AUTO";
+
 if (weather=="rain" ||weather=="shower rain"|| weather=="thunderstorm"){
     //we don't have to water
     delay(100);
@@ -182,7 +184,7 @@ if (weather=="rain" ||weather=="shower rain"|| weather=="thunderstorm"){
     unsigned long On_time=temp.toFloat()/10*6e4 + (100-humidity.toFloat())/50*6e4;
     //int h=H.toInt();
     Serial.println(H);
-    if ((9<H && H<10) || (16<H && H<17)){
+    if ((9<=H && H<10) || (16<=H && H<17)){
       if (flag){
         
         Serial.println(On_time);
@@ -193,12 +195,12 @@ if (weather=="rain" ||weather=="shower rain"|| weather=="thunderstorm"){
         Serial.println("Auto Watering stopped****************************************");
         delay(1000);
         flag=false;
-        Recorrect_sleep();
       }
       
     }
     else{
         flag=true;
+
     }
     
   }
@@ -224,7 +226,7 @@ void light_sleep(){
    wifi_fpm_open(); // Enables force sleep
    delay(100);
    gpio_pin_wakeup_enable(GPIO_ID_PIN(0), GPIO_PIN_INTR_LOLEVEL);
-   wifi_fpm_do_sleep(240e3); // Sleep for longest possible time
+   wifi_fpm_do_sleep(180e3); // Sleep for longest possible time
    Serial.println("going to wifi sleep");
  }
 
@@ -262,33 +264,6 @@ void location() { //Handler for the body path
     server.send(200,"text/plain","Location set to"+country+" "+city);
     return;
 }
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-void Get_time(){
-    timeClient.update();                            // This function gets the local time of the NodeMCU. This should run frequently
-    H=timeClient.getHours();
-    M=timeClient.getMinutes();
-    S=timeClient.getSeconds();
-    Time=H*3600+M*60+S;
-    Time=Time+utcOffsetInSeconds;
-    
-    H= floor(Time/3600);
-    Time=Time%3600;
-    M=floor(Time/60);
-    S=Time%60;
-}
-
-void Recorrect_sleep(){             // This function check the local time if it is not close to the watering time, ESP will goto a 5 Mins deep sleep.
-  Get_time();
-  while (not((M-2)%6==0)){
-    Get_time();  
-  }
-  light_sleep();
-  delay(200);
-}
-
-
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=++++++
 
 
 //=================================================================
@@ -348,21 +323,28 @@ void loop()
   if (mode=="AUTO"){
     
     //Current_time=millis();
-    if (M==2 && S==0){
+    if (M==3 && S==0){
       FLAG_loop=true;
       light_sleep();
-      delay(200);
+      delay(100);
+      RST_count=0;
         
     }
-    else if (FLAG_loop && (M-2)%6==0 && S==0){         // Auto function deepsleep
+    else if (FLAG_loop && (M-3)%6==0 && S==0){         // Auto function deepsleep
       light_sleep();
-      delay(200);
+      delay(100);
+      RST_count=0;
     }
-    else if(FLAG_loop && M%6==0 && S==0){
-      initWifi();
-      awake=true;
+    else if(FLAG_loop && M%6==0 && RST_count==0){
+        initWifi();
+        awake=true;
+        Serial.println("AWAKE and Making connections");
+        RST_count=RST_count+1;
+      
     }
+    
     Auto(temp,humidity,weather,H);
+    
   }
 
 
