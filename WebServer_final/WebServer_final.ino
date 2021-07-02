@@ -35,8 +35,8 @@ int Current_time;
 ESP8266WebServer server(80);
 WiFiClient espClient;
 PubSubClient client(espClient);
-const char* ssid = "SLT-4G-3F4C";
-const char* password = "5HJ39M13JDM";
+const char* ssid = "RANSIKA";
+const char* password = "RWIFI1234";
 
 const char* mqtt_server = "test.mosquitto.org";
 const char* outTopic = "ENTC/EN2560/out/180241M";
@@ -126,7 +126,7 @@ void reconnect() {
 //------------------------------------------
 void XML()
 {
-  String xml="<?xml version = \"1.0\" ?><inputs><locset>"+locset+"</locset><loc><country>"+country_nodered+"</country><city>"+city_nodered+"</city></loc><sys><temp>"+temp+"</temp><humidity>"+humidity+"</humidity><weather>"+weather+"</weather></sys><mode>"+mode+"</mode></inputs>";
+  String xml="<?xml version = \"1.0\" ?><inputs><locset>"+locset+"</locset><loc><country>"+country_nodered+"</country><city>"+city_nodered+"</city></loc><sys><temp>"+temp+"</temp><humidity>"+humidity+"</humidity><weather>"+weather+"</weather></sys><mode>"+mode+"</mode><utcoffset>"+utcOffsetInSeconds_s+"</utcoffset></inputs>";
   server.send(200,"text/XML",xml);
   Serial.println("xml sent");
 }
@@ -159,6 +159,10 @@ void method(){
       return;
     }
 
+}
+
+void awake_confirm(){
+server.send(200,"text/plain","true");
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -248,6 +252,8 @@ void Recorrect_sleep(){             // This function check the local time if it 
   ESP.deepSleep(239e6);
 }
 
+
+
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++=++++++
 
 
@@ -265,6 +271,7 @@ void setup()
   server.on("/method", method);
   server.on("/xml",XML);
   server.on("/location", location);
+  server.on("/wake",awake_confirm);
   server.begin();
 
   Starting_time=millis();
