@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<p>Click the button to display the UTC date and time as a string.</p>
+
+<button onclick="myFunction()">Try it</button>
+
+<p id="demo"></p>
+
+<script>
+function myFunction() {
+  var d = new Date();
+  var diff = d.getTimezoneOffset();
+  let unix_timestamp = Date.now();
+  console.log(unix_timestamp);
+  console.log(diff*60);
+  unix_timestamp=unix_timestamp+diff*60*1000;
+  console.log(unix_timestamp);
+// Create a new JavaScript Date object based on the timestamp
+// multiplied by 1000 so that the argument is in milliseconds, not seconds.
+var date = new Date(unix_timestamp);
+// Hours part from the timestamp
+var hours = date.getHours();
+// Minutes part from the timestamp
+var minutes = "0" + date.getMinutes();
+// Seconds part from the timestamp
+var seconds = "0" + date.getSeconds();
+
+// Will display time in 10:30:23 format
+var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+
+console.log(formattedTime);
+  document.getElementById("demo").innerHTML = formattedTime;
+}
+</script>
+
+</body>
+</html>
