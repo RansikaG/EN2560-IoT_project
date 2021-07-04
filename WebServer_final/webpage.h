@@ -66,21 +66,21 @@ R"=====(
         font-size: 45px;
         }
         .container {
-        width: 50px;
+        max-width: 400px;
+        width: 85%;
         clear: both;
         margin: auto;
         position: relative;
-        width: 25%;
         border-radius: 10px;
         border: 3px solid #090a07;
         padding: 10px;
         background-color: rgb(55, 141, 170);
                     }
         .container input {
-        width: 50px;
+        max-width: 380px;
+        width: 90%;
         clear: both;
         margin: auto;
-        width: 90%;
         border: 3px solid #196aa0;
         border-radius: 10px;
         padding: 10px;
@@ -90,10 +90,10 @@ R"=====(
         }
 
         .details {
-        width: 50px;
+        max-width: 250px;
+        width: 75%;
         clear: both;
         margin: auto;
-        width: 25%;
         border: 3px solid #196aa0;
         border-radius: 10px;
         padding: 10px;
@@ -121,7 +121,7 @@ R"=====(
         }
 
         .mode{
-        border: solid 2px rgba(18, 28, 34, 0.9);
+        border: none;
         width: 200px;
         clear: both;
         margin: auto;
@@ -253,6 +253,8 @@ R"=====(
     
 
     </style>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <!----------------------------H T M L--------------------------------->
 <body onload="startTime()">
@@ -285,7 +287,7 @@ R"=====(
             <span class="slider round"></span>
           </label><br>
         <button class=btn id="btn_M"  name="Manual" ONCLICK=' manual(water=true)' >MANUAL</button>
-    </div>
+    </div><br>
     <div id="alert">
         <span class="closebtn" onclick="this.parentElement.style.opacity='0';">&times;</span> 
         <strong>AUTO MODE:</strong> Watering is done once between 9.00 AM - 10.00 AM and 4.00 PM - 5.00PM

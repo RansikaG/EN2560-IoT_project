@@ -19,7 +19,7 @@ using namespace std;
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org",0);
 
-String utcOffsetInSeconds_s;
+String utcOffsetInSeconds_s="0";
 int utcOffsetInSeconds=0;
 int H;
 int M;
