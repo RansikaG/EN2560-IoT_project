@@ -25,7 +25,7 @@ int H;
 int M;
 int S;
 int Time;
-bool FLAG_loop=false;
+bool FLAG_loop=true;
 
 int Starting_time;
 int Current_time;
@@ -38,10 +38,10 @@ bool awake=true;
 ESP8266WebServer server(80);
 WiFiClient espClient;
 PubSubClient client(espClient);
-//const char* ssid = "SLT-4G-3F4C";
-//const char* password = "5HJ39M13JDM";
-const char* ssid = "RANSIKA";
-const char* password = "RWIFI1234";
+const char* ssid = "SLT-4G-3F4C";
+const char* password = "5HJ39M13JDM";
+//const char* ssid = "RANSIKA";
+//const char* password = "RWIFI1234";
 
 const char* mqtt_server = "test.mosquitto.org";
 const char* outTopic = "ENTC/EN2560/out/180241M";
@@ -176,20 +176,20 @@ void awake_confirm(){                                                         //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 void Auto(String temp,String humidity, String weather, int H){                                 // Automatical watering for a calculated time depend of Temperature and the Humidity
-//Serial.println("Auto");
-String mode="AUTO";
 
-if (weather=="rain" ||weather=="shower rain"|| weather=="thunderstorm"){
-    //we don't have to water
-    delay(100);
+  String mode="AUTO";
+
+  if (weather=="rain" ||weather=="shower rain"|| weather=="thunderstorm"){
+      //we don't have to water
+      delay(100);
   }
   else{
     
     unsigned long On_time=temp.toFloat()/10*6e4 + (100-humidity.toFloat())/50*6e4;
     //int h=H.toInt();
     //Serial.println(H);
-    if ((9<=H && H<10) || (21<=H && H<22)){
-      if (flag){
+    if (((11<=H) && (H<12)) or ((21<=H) && (H<22))){
+      if (flag==true){
         
         Serial.println(On_time);
         digitalWrite(Valve,HIGH);
@@ -197,14 +197,15 @@ if (weather=="rain" ||weather=="shower rain"|| weather=="thunderstorm"){
         delay(On_time/4);
         digitalWrite(Valve,LOW);
         Serial.println("Auto Watering stopped****************************************");
-        delay(1000);
         flag=false;
+        delay(1000);
+        
       }
       
     }
     else{
         flag=true;
-
+        
     }
     
   }
@@ -307,6 +308,8 @@ void loop()
   
   
   timeClient.update();                            // This function gets the local time of the NodeMCU using the NTP server.
+    
+    H=timeClient.getHours();
     M=timeClient.getMinutes();
     S=timeClient.getSeconds();
     Time=H*3600+M*60+S;
