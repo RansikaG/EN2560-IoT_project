@@ -412,7 +412,7 @@ R"=====(
 
         }
     }
-    var timezone=0;
+    var timezone=19800;
     var awake=false;
     var hours;
     var minutes;
